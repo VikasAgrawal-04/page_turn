@@ -7,23 +7,23 @@ import '../effects/index.dart';
 
 class PageTurnWidget extends StatefulWidget {
   const PageTurnWidget({
-    Key key,
-    this.amount,
+    super.key,
+    required this.amount,
+    required this.child,
     this.backgroundColor = const Color(0xFFFFFFCC),
-    this.child,
-  }) : super(key: key);
+  });
 
   final Animation<double> amount;
   final Color backgroundColor;
   final Widget child;
 
   @override
-  _PageTurnWidgetState createState() => _PageTurnWidgetState();
+  State<PageTurnWidget> createState() => _PageTurnWidgetState();
 }
 
 class _PageTurnWidgetState extends State<PageTurnWidget> {
   final _boundaryKey = GlobalKey();
-  ui.Image _image;
+  ui.Image? _image;
 
   @override
   void didUpdateWidget(PageTurnWidget oldWidget) {
@@ -36,12 +36,15 @@ class _PageTurnWidgetState extends State<PageTurnWidget> {
   void _captureImage(Duration timeStamp) async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final boundary =
-        _boundaryKey.currentContext.findRenderObject() as RenderRepaintBoundary;
+        _boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    if (boundary == null) return;
+
     if (boundary.debugNeedsPaint) {
       await Future.delayed(const Duration(milliseconds: 20));
       return _captureImage(timeStamp);
     }
     final image = await boundary.toImage(pixelRatio: pixelRatio);
+    if (!mounted) return;
     setState(() => _image = image);
   }
 
@@ -51,7 +54,7 @@ class _PageTurnWidgetState extends State<PageTurnWidget> {
       return CustomPaint(
         painter: PageTurnEffect(
           amount: widget.amount,
-          image: _image,
+          image: _image!,
           backgroundColor: widget.backgroundColor,
         ),
         size: Size.infinite,
@@ -62,7 +65,7 @@ class _PageTurnWidgetState extends State<PageTurnWidget> {
         builder: (BuildContext context, BoxConstraints constraints) {
           final size = constraints.biggest;
           return Stack(
-            overflow: Overflow.clip,
+            clipBehavior: Clip.none, // Instead of overflow
             children: <Widget>[
               Positioned(
                 left: 1 + size.width,

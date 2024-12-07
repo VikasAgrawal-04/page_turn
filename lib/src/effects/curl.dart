@@ -27,12 +27,11 @@ import 'package:flutter/material.dart';
 
 class PageTurnEffect extends CustomPainter {
   PageTurnEffect({
-    @required this.amount,
-    @required this.image,
-    this.backgroundColor,
+    required this.amount,
+    required this.image,
+    required this.backgroundColor,
     this.radius = 0.18,
-  })  : assert(amount != null && image != null && radius != null),
-        super(repaint: amount);
+  }) : super(repaint: amount);
 
   final Animation<double> amount;
   final ui.Image image;
@@ -55,9 +54,7 @@ class PageTurnEffect extends CustomPainter {
     final shadowSigma =
         Shadow.convertRadiusToSigma(8.0 + (32.0 * (1.0 - shadowXf)));
     final pageRect = Rect.fromLTRB(0.0, 0.0, w * shadowXf, h);
-    if (backgroundColor != null) {
-      c.drawRect(pageRect, Paint()..color = backgroundColor);
-    }
+    c.drawRect(pageRect, Paint()..color = backgroundColor);
     if (pos != 0) {
       c.drawRect(
         pageRect,

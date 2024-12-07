@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:page_turn/page_turn.dart';
 
 import '../common/index.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({
-    Key key,
-  }) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -30,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
         onPressed: () {
-          _controller.currentState.goToPage(2);
+          _controller.currentState?.goToPage(2);
         },
       ),
     );
