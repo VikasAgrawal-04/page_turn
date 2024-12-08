@@ -12,6 +12,7 @@ class PageTurn extends StatefulWidget {
     this.initialIndex = 0,
     required this.lastPage,
     this.showDragCutoff = false,
+    this.onPageChanged,
   });
 
   final Color backgroundColor;
@@ -21,6 +22,7 @@ class PageTurn extends StatefulWidget {
   final Widget lastPage;
   final bool showDragCutoff;
   final double cutoff;
+  final ValueChanged<int>? onPageChanged;
 
   @override
   PageTurnState createState() => PageTurnState();
@@ -96,7 +98,6 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
       }
     }
 
-
     if (_isForward == true || pageNumber == 0) {
       _controllers[pageNumber].value += _ratio;
     } else {
@@ -105,22 +106,15 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
   }
 
   Future _onDragFinish() async {
-    print('Drag Finish..');
     if (_isForward == true) {
-      print("Inside if");
       if (!_isLastPage &&
           _controllers[pageNumber].value <= (widget.cutoff + 0.15)) {
         await nextPage();
       } else {
         await _controllers[pageNumber].forward();
       }
-      print("Ending if");
     } else {
-      print("Inside else");
-      if (!_isFirstPage) {
-        print(
-            'Val:${_controllers[pageNumber - 1].value} -> ${widget.cutoff + 0.28}');
-      }
+      if (!_isFirstPage) {}
       if (!_isFirstPage &&
           _controllers[pageNumber - 1].value >= widget.cutoff) {
         await previousPage();
@@ -131,40 +125,39 @@ class PageTurnState extends State<PageTurn> with TickerProviderStateMixin {
           await _controllers[pageNumber - 1].reverse();
         }
       }
-      print("Ending else");
     }
     _isForward = null;
   }
 
   Future nextPage() async {
-    print('Next Page..');
     await _controllers[pageNumber].reverse();
     if (mounted)
       setState(() {
         pageNumber++;
       });
+    widget.onPageChanged?.call(pageNumber);
   }
 
   Future previousPage() async {
-    print('Previous Page..');
     await _controllers[pageNumber - 1].forward();
     if (mounted)
       setState(() {
         pageNumber--;
       });
+    widget.onPageChanged?.call(pageNumber);
   }
 
   Future goToPage(int index) async {
-    print('Navigate Page ${index + 1}..');
-    if (mounted)
+    if (mounted) {
       setState(() {
         pageNumber = index;
       });
+      widget.onPageChanged?.call(pageNumber);
+    }
     for (var i = 0; i < _controllers.length; i++) {
       if (i == index) {
         _controllers[i].forward();
       } else if (i < index) {
-        // _controllers[i].value = 0;
         _controllers[i].reverse();
       } else {
         if (_controllers[i].status == AnimationStatus.reverse)
